@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
 use App\Models\PaymentType;
+use App\Models\SaleItem;
 
 class SaleController extends Controller
 {
@@ -22,29 +23,32 @@ class SaleController extends Controller
     public function store(Request $request, $user)
     {
         $data = $request->all();
-        $data['user_id'] = $user;
+        $data['client_account_id'] = $user;
 
         if (!isset($data['user_id'])) {
             return response()->json(['status' => 0, 'message' => 'Error missing value requerid']);
         }
 
-        if (!isset($data['name'])) {
-            return response()->json(['status' => 0, 'message' => 'The field name is required']);
-        }
-
-        $sale = Sale::where('user_id', $user)->where('name', $data['name'])->first();
-        if ($sale) {
-            return response()->json(['status' => 0, 'message' => 'This sales is registered']);
-        }
-
-        $lastCode = Sale::where('user_id', $user)->orderBy('id', 'desc')->pluck('code')->first();
+        $lastCode = Sale::where('client_account_id', $user)->orderBy('id', 'desc')->pluck('code')->first();
         $number = intval(substr($lastCode, 3)) + 1;
-        $data['code'] = 'PROD' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        $data['code'] = 'SL' . str_pad($number, 3, '0', STR_PAD_LEFT);
 
-
-        $sale = Sale::create($data);
+        $sale = Sale::create();
 
         if (!$sale) {
+            return response()->json(['status' => 0, 'message' => 'Error trying to register sale']);
+        }
+
+        $saleId = $sale->id;
+
+        $itemsWithSaleId = collect($data['selected_products'])->map(function ($productData) use ($saleId) {
+            $productData['sale_id'] = $saleId;
+            return $productData;
+        })->all();
+
+        $saleItem = SaleItem::insert($itemsWithSaleId);
+
+        if (!$saleItem) {
             return response()->json(['status' => 0, 'message' => 'Error trying to register sale']);
         }
 

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class SaleItem extends Model
 {
     use HasFactory;
-    protected $fillable = ['quantity', 'unit_price', 'sale_id', 'product_id'];
+    protected $fillable = ['quantity', 'unit_price', 'description', 'sale_id', 'product_id'];
 }

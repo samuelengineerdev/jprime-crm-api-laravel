@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
             $table->integer('quantity');
+            $table->string('description');
             $table->decimal('unit_price', 10, 2);
             $table->unsignedBigInteger('sale_id');
             $table->unsignedBigInteger('product_id');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
