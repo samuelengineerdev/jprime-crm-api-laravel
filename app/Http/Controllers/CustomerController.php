@@ -2,28 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientAccount;
+use App\Models\ClientEmployeeAccount;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customer;
 use App\Models\Status;
+use App\Models\User;
 use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
-    public function index($user)
+    public function getClientUserId($userCode)
     {
-        $customers = Customer::with('status')->where('user_id', $user)->where('deleted', 0)->orderBy('id', 'desc')->get();
+        if (strpos($userCode, 'CA') === 0) {
+            $clientAccout = ClientAccount::where('code', $userCode)->first();
+            $clientUser = User::where('userable_id', $clientAccout->id)->first();
+            $clientUserId = $clientUser->id;
+        } elseif (strpos($userCode, 'CEA') === 0) {
+            $clientEmployee = ClientEmployeeAccount::where('code', $userCode)->first();
+            $clientUserId = $clientEmployee ? $clientEmployee->client_user_id : null;
+        } else {
+            return response()->json(['status' => 0, 'message' => 'Error: user not found']);
+        }
+
+        // Verificar si se encontró un usuario válido
+        if (!$clientUserId) {
+            return response()->json(['status' => 0, 'message' => 'Error: user not found']);
+        }
+
+        return $clientUserId;
+    }
+
+
+    public function index($userCode)
+    {
+        $clientUserId = $this->getClientUserId($userCode);
+        $customers = Customer::with('status')->where('client_user_id', $clientUserId)->where('deleted', 0)->orderBy('id', 'desc')->get();
         return response()->json(['status' => 1, 'customers' => $customers]);
     }
 
-    public function store(Request $request, $user)
+    public function store(Request $request, $userCode)
     {
         $data = $request->all();
-        $data['user_id'] = $user;
-
-        if (!isset($data['user_id'])) {
-            return response()->json(['status' => 0, 'message' => 'Error missing value requerid']);
-        }
+        $clientUserId = $this->getClientUserId($userCode);
+        $data['client_user_id'] = $clientUserId;
 
         if (!isset($data['full_name']) || !isset($data['email']) || !isset($data['phone'])) {
             return response()->json(['status' => 0, 'message' => 'The fields name, email and phone are required']);
@@ -39,9 +62,9 @@ class CustomerController extends Controller
             return response()->json(['status' => 0, 'message' => 'This phone is registered']);
         }
 
-        $lastCode = Customer::where('user_id', $user)->orderBy('id', 'desc')->pluck('code')->first();
+        $lastCode = Customer::where('client_user_id', $clientUserId)->orderBy('id', 'desc')->pluck('code')->first();
         $number = intval(substr($lastCode, 3)) + 1;
-        $data['code'] = 'CUS' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        $data['code'] = 'CUS' . str_pad($number, 4, '0', STR_PAD_LEFT);
         $data['registration_date'] = Carbon::now()->toDateString();
 
 

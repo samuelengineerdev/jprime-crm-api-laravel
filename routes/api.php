@@ -67,27 +67,27 @@ Route::group(['prefix' => 'client'], function () {
 
 
 Route::group(['prefix' => 'supplier'], function () {
-    Route::get('/{user}', [SupplierController::class, 'index']);
-    Route::post('/{user}', [SupplierController::class, 'store']);
+    Route::get('/{userCode}', [SupplierController::class, 'index']);
+    Route::post('/{userCode}', [SupplierController::class, 'store']);
     Route::get('/show/{id}', [SupplierController::class, 'show']);
     Route::put('/', [SupplierController::class, 'update']);
     Route::delete('/{id}', [SupplierController::class, 'delete']);
 });
 
 Route::group(['prefix' => 'product-category'], function () {
-    Route::get('/{user}', [ProductCategoryController::class, 'index']);
-    Route::post('/{user}', [ProductCategoryController::class, 'store']);
+    Route::get('/{userCode}', [ProductCategoryController::class, 'index']);
+    Route::post('/{userCode}', [ProductCategoryController::class, 'store']);
     Route::get('/show/{id}', [ProductCategoryController::class, 'show']);
-    Route::put('/{user}', [ProductCategoryController::class, 'update']);
+    Route::put('/{userCode}', [ProductCategoryController::class, 'update']);
     Route::delete('/{id}', [ProductCategoryController::class, 'delete']);
 });
 
 Route::group(['prefix' => 'product'], function () {
     Route::get('/statuses', [ProductController::class, 'statuses']);
-    Route::get('/{user}', [ProductController::class, 'index']);
-    Route::post('/{user}', [ProductController::class, 'store']);
+    Route::get('/{userCode}', [ProductController::class, 'index']);
+    Route::post('/{userCode}', [ProductController::class, 'store']);
     Route::get('/show/{id}', [ProductController::class, 'show']);
-    Route::put('/{user}', [ProductController::class, 'update']);
+    Route::put('/{userCode}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'delete']);
 });
 
@@ -96,16 +96,16 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('/{user}', [CustomerController::class, 'index']);
     Route::post('/{user}', [CustomerController::class, 'store']);
     Route::get('/show/{id}', [CustomerController::class, 'show']);
-    Route::put('/{user}', [CustomerController::class, 'update']);
+    Route::put('/', [CustomerController::class, 'update']);
     Route::delete('/{id}', [CustomerController::class, 'delete']);
 });
 
 Route::group(['prefix' => 'sale'], function () {
     Route::get('/statuses', [SaleController::class, 'statuses']);
-    Route::get('/getSaleCreationData/{user}', [SaleController::class, 'getSaleCreationData']);
+    Route::get('/getSaleCreationData/{userCode}', [SaleController::class, 'getSaleCreationData']);
     Route::get('/{user}', [SaleController::class, 'index']);
-    Route::post('/{user}', [SaleController::class, 'store']);
+    Route::post('/{userCode}', [SaleController::class, 'store']);
     Route::get('/show/{id}', [SaleController::class, 'show']);
-    Route::put('/{user}', [SaleController::class, 'update']);
+    Route::put('/', [SaleController::class, 'update']);
     Route::delete('/{id}', [SaleController::class, 'delete']);
 });
